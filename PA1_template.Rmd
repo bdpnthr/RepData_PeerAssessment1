@@ -14,7 +14,7 @@ str(activity)
 ```
 
 #What is mean total number of steps taken per day?
-
+Calculate the total steps per day, plot a histogram, and compute the mean and median.
 ```{r echo=TRUE}
 steps_per_day <- aggregate(steps ~ date, data=activity, sum, na.rm=TRUE)
 hist(steps_per_day$steps, main="Total Steps per Day", xlab="Steps", col="lightblue")
@@ -25,6 +25,7 @@ median_steps
 ```
 
 #What is the average daily activity pattern?
+Examine the average number of steps per 5‑minute interval across all days.
 ```{r echo=TRUE}
 avg_interval <- aggregate(steps ~ interval, data=activity, mean, na.rm=TRUE)
 plot(avg_interval$interval, avg_interval$steps, type="l",
@@ -34,6 +35,7 @@ max_interval
 ```
 
 #Imputing missing values
+Count missing values, replace them with the mean for that interval, and compare results.
 ```{r echo=TRUE}
 missing_count <- sum(is.na(activity$steps))
 missing_count
@@ -55,6 +57,7 @@ median_steps_imputed
 ```
 
 #Are there differences in activity patterns between weekdays and weekends?
+Create a factor variable for weekday/weekend and compare average activity patterns.
 ```{r echo=TRUE}
 activity_imputed$daytype <- ifelse(weekdays(activity_imputed$date) %in% 
                                    c("Saturday","Sunday"), "weekend", "weekday")
