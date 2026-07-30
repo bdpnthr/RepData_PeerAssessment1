@@ -1,86 +1,135 @@
-
-
-```` r
 ---
-  title: "Reproducible Research: Peer Assessment 1"
-author: "bdpnthr"
+title: "Reproducible Research: Peer Assessment 1"
+author: "FL"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-  
-  ## Loading and preprocessing the data
-  We first load the dataset and convert the date column to Date format.
-```{r echo=TRUE}
-activity <- read.csv("activity.csv", header=TRUE, stringsAsFactors=FALSE)
-activity$date <- as.Date(activity$date, format="%Y-%m-%d")
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Loading and preprocessing the data
+
+We first load the dataset and convert the date column to Date format.
+
+```{r echo=TRUE, fig.show='hold'}
+activity <- read.csv("activity.csv", header = TRUE, stringsAsFactors = FALSE)
+activity$date <- as.Date(activity$date, format = "%Y-%m-%d")
 str(activity)
 ```
 
-#What is mean total number of steps taken per day?
+## What is the mean total number of steps taken per day?
+
 Calculate the total steps per day, plot a histogram, and compute the mean and median.
-```{r echo=TRUE}
-steps_per_day <- aggregate(steps ~ date, data=activity, sum, na.rm=TRUE)
-hist(steps_per_day$steps, main="Total Steps per Day", xlab="Steps", col="lightblue")
+
+```{r echo=TRUE, fig.show='hold'}
+steps_per_day <- aggregate(steps ~ date, data = activity, sum, na.rm = TRUE)
+
+hist(
+  steps_per_day$steps,
+  main = "Total Steps per Day",
+  xlab = "Steps",
+  col = "lightblue"
+)
+
 mean_steps <- mean(steps_per_day$steps)
 median_steps <- median(steps_per_day$steps)
+
 mean_steps
 median_steps
 ```
 
-#What is the average daily activity pattern?
-Examine the average number of steps per 5‑minute interval across all days.
-```{r echo=TRUE}
-avg_interval <- aggregate(steps ~ interval, data=activity, mean, na.rm=TRUE)
-plot(avg_interval$interval, avg_interval$steps, type="l",
-     main="Average Daily Activity Pattern", xlab="Interval", ylab="Average Steps")
+## What is the average daily activity pattern?
+
+Examine the average number of steps per 5-minute interval across all days.
+
+```{r echo=TRUE, fig.show='hold'}
+avg_interval <- aggregate(steps ~ interval, data = activity, mean, na.rm = TRUE)
+
+plot(
+  avg_interval$interval,
+  avg_interval$steps,
+  type = "l",
+  main = "Average Daily Activity Pattern",
+  xlab = "Interval",
+  ylab = "Average Steps"
+)
+
 max_interval <- avg_interval[which.max(avg_interval$steps), ]
 max_interval
 ```
 
-#Imputing missing values
+## Imputing missing values
+
 Count missing values, replace them with the mean for that interval, and compare results.
-```{r echo=TRUE}
+
+```{r echo=TRUE, fig.show='hold'}
 missing_count <- sum(is.na(activity$steps))
 missing_count
 
 activity_imputed <- activity
-for (i in 1:nrow(activity_imputed)) {
+
+for (i in seq_len(nrow(activity_imputed))) {
   if (is.na(activity_imputed$steps[i])) {
     interval_val <- activity_imputed$interval[i]
-    activity_imputed$steps[i] <- avg_interval$steps[avg_interval$interval == interval_val]
+    activity_imputed$steps[i] <-
+      avg_interval$steps[avg_interval$interval == interval_val]
   }
 }
 
-steps_per_day_imputed <- aggregate(steps ~ date, data=activity_imputed, sum)
-hist(steps_per_day_imputed$steps, main="Total Steps per Day (Imputed)", xlab="Steps", col="lightgreen")
+steps_per_day_imputed <- aggregate(
+  steps ~ date,
+  data = activity_imputed,
+  sum
+)
+
+hist(
+  steps_per_day_imputed$steps,
+  main = "Total Steps per Day (Imputed)",
+  xlab = "Steps",
+  col = "lightgreen"
+)
+
 mean_steps_imputed <- mean(steps_per_day_imputed$steps)
 median_steps_imputed <- median(steps_per_day_imputed$steps)
+
 mean_steps_imputed
 median_steps_imputed
 ```
 
-#Are there differences in activity patterns between weekdays and weekends?
+## Are there differences in activity patterns between weekdays and weekends?
+
 Create a factor variable for weekday/weekend and compare average activity patterns.
-```{r echo=TRUE}
-activity_imputed$daytype <- ifelse(weekdays(activity_imputed$date) %in% 
-                                     c("Saturday","Sunday"), "weekend", "weekday")
+
+```{r echo=TRUE, fig.show='hold'}
+activity_imputed$daytype <- ifelse(
+  weekdays(activity_imputed$date) %in% c("Saturday", "Sunday"),
+  "weekend",
+  "weekday"
+)
+
 activity_imputed$daytype <- factor(activity_imputed$daytype)
 
-avg_daytype <- aggregate(steps ~ interval + daytype, data=activity_imputed, mean)
+avg_daytype <- aggregate(
+  steps ~ interval + daytype,
+  data = activity_imputed,
+  mean
+)
 
 library(ggplot2)
-ggplot(avg_daytype, aes(x=interval, y=steps)) +
+
+ggplot(avg_daytype, aes(x = interval, y = steps)) +
   geom_line() +
-  facet_wrap(~daytype, ncol=1) +
-  labs(title="Weekday vs Weekend Activity Patterns",
-       x="Interval", y="Average Steps")
+  facet_wrap(~daytype, ncol = 1) +
+  labs(
+    title = "Weekday vs Weekend Activity Patterns",
+    x = "Interval",
+    y = "Average Steps"
+  )
 ```
-````
-
-```
-## Error in parse(text = input): <text>:9:6: unexpected symbol
-## 8:   ## Loading and preprocessing the data
-## 9:   We first
-##         ^
-```
-
